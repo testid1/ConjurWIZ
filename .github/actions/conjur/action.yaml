@@ -51,7 +51,10 @@ runs:
  
         echo "::add-mask::$SESSION_TOKEN"
         echo "session_token=$SESSION_TOKEN" >> $GITHUB_OUTPUT
-
+    - name: Mask wiz secrets to file
+      run: |
+        set +x
+        echo "::add-mask::$VALUE"
     # Fetch org-level secrets
     - name: Retrieve Secret(s) from CONJUR_ORG_VARIABLE_PATH
       id: retrieve
