@@ -36,6 +36,7 @@ jobs:
         run: |
           set +x
           echo "::add-mask::${{ steps.conjur.outputs.wiz_client_secret }}"
+          echo "::add-mask::${{ jobs.conjur.outputs.wiz_client_secret }}"
           
       - name: Conjur Connection
         id: conjur
