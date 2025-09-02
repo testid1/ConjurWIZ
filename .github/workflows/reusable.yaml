@@ -31,7 +31,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
- 
+
+      - name: Mask wiz secrets to file
+        run: |
+          set +x
+          echo "::add-mask::${{ steps.conjur.outputs.wiz_client_secret }}"
+          
       - name: Conjur Connection
         id: conjur
         uses: Testid1/ConjurWIZ/.github/actions/conjur@main
