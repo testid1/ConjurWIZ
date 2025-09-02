@@ -84,7 +84,7 @@ runs:
         echo "::add-mask::$VALUE"  
    #     
     - name: Set WIZ_CLIENT_SECRET 
-      id: retrieve
+      id: set
       shell: bash
       run: |
         set -e
