@@ -82,5 +82,6 @@ runs:
             "$CONJUR_APPLIANCE_URL/secrets/$CONJUR_ACCOUNT/variable/$clean_var")
 
           echo "wiz_client_secret=$VALUE" >> $GITHUB_OUTPUT          
-       #   echo "::add-mask::$VALUE"
+       
         done
+   # echo "::add-mask::$VALUE"
