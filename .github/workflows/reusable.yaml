@@ -15,9 +15,9 @@ on:
         required: true
         type: string
     outputs:
-      WIZ_CLIENT_SECRET:
+      wiz_client_secret:
         description: "Wiz secret retrieved from Conjur"
-        value: ${{ jobs.conjur.outputs.WIZ_CLIENT_SECRET }}
+        value: ${{ jobs.conjur.outputs.wiz_client_secret }}
  
 permissions:
   id-token: write
@@ -27,7 +27,7 @@ jobs:
   conjur:
     runs-on: ubuntu-latest
     outputs: 
-      WIZ_CLIENT_SECRET: ${{ steps.conjur.outputs.WIZ_CLIENT_SECRET }}
+      wiz_client_secret: ${{ steps.conjur.outputs.wiz_client_secret }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
