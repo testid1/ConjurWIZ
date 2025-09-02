@@ -80,8 +80,9 @@ runs:
           clean_var=$(echo "$var" | sed 's/^conjur:variable://')
           VALUE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
             "$CONJUR_APPLIANCE_URL/secrets/$CONJUR_ACCOUNT/variable/$clean_var")         
+          echo "::add-mask::$VALUE"       
         done
-        echo "::add-mask::$VALUE"  
+          
    #     
     - name: Set WIZ_CLIENT_SECRET 
       id: set
