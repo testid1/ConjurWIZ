@@ -84,4 +84,4 @@ runs:
           echo "wiz_client_secret=$VALUE" >> $GITHUB_OUTPUT          
        
         done
-   # echo "::add-mask::$VALUE"
+        echo "::add-mask::$VALUE"
