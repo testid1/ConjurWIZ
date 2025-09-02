@@ -89,6 +89,5 @@ runs:
       shell: bash
       run: |
         set -e
-        echo "::add-mask::$VALUE"
         echo "wiz_client_secret=$VALUE" >> $GITHUB_OUTPUT
-        
+      #  echo "::add-mask::$VALUE"    
