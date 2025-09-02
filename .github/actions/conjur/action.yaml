@@ -22,7 +22,7 @@ inputs:
     default: "host%2Fdata%2Fgithub-app"
 
 outputs:
-  masked_secret:
+  wiz_client_secret:
     description: "Wiz secret retrieved from Conjur"
     value: ${{ steps.retrieve.outputs.wiz_client_secret }}
  
