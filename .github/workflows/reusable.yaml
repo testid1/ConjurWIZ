@@ -1,0 +1,40 @@
+name: Reusable workflow deployment
+ 
+on:
+  workflow_call:
+    secrets:
+      CONJUR_API_KEY:
+        required: true
+    inputs:
+      CONJUR_VARIABLE_PATH:
+        description: "Conjur safe or variable path"
+        required: false
+        type: string
+      CONJUR_ORG_VARIABLE_PATH:
+        description: "Conjur safe or variable path for organizational secrets"
+        required: true
+        type: string
+    outputs:
+      WIZ_CLIENT_SECRET:
+        description: "Wiz secret retrieved from Conjur"
+        value: ${{ jobs.conjur.outputs.WIZ_CLIENT_SECRET }}
+ 
+permissions:
+  id-token: write
+  contents: read
+ 
+jobs:
+  conjur:
+    runs-on: ubuntu-latest
+    outputs: 
+      WIZ_CLIENT_SECRET: ${{ steps.conjur.outputs.WIZ_CLIENT_SECRET }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+ 
+      - name: Conjur Connection
+        id: conjur
+        uses: Testid1/ConjurWIZ/.github/actions/conjur@main
+        with:
+          CONJUR_ORG_VARIABLE_PATH: ${{ inputs.CONJUR_ORG_VARIABLE_PATH }}
+          CONJUR_API_KEY: ${{ secrets.CONJUR_API_KEY }}
