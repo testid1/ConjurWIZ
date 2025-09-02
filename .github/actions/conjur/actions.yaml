@@ -1,0 +1,86 @@
+name: "Conjur Connection"
+description: "Authenticate to Conjur and retrieve secrets"
+ 
+inputs:
+  CONJUR_ORG_VARIABLE_PATH:
+    description: "Conjur variable path or prefix for Organizational secrets"
+    required: true
+  CONJUR_API_KEY:
+    description: "Conjur API key"
+    required: true
+  CONJUR_APPLIANCE_URL:
+    description: "Conjur base API URL"
+    required: true
+    default: "https://pwclab.secretsmgr.cyberark.cloud/api"
+  CONJUR_ACCOUNT:
+    description: "Conjur account"
+    required: true
+    default: "conjur"
+  CONJUR_AUTHN_LOGIN:
+    description: "Conjur host identity path"
+    required: true
+    default: "host%2Fdata%2Fgithub-app"
+
+outputs:
+  WIZ_CLIENT_SECRET:
+    description: "Wiz secret retrieved from Conjur"
+    value: ${{ steps.retrieve.outputs.WIZ_CLIENT_SECRET }}
+ 
+runs:
+  using: "composite"
+  steps:
+    # Authenticate
+    - name: Authenticate to Conjur
+      id: conjur_auth
+      shell: bash
+      run: |
+        CONJUR_APPLIANCE_URL="${{ inputs.CONJUR_APPLIANCE_URL }}"
+        CONJUR_ACCOUNT="${{ inputs.CONJUR_ACCOUNT }}"
+        CONJUR_AUTHN_LOGIN="${{ inputs.CONJUR_AUTHN_LOGIN }}"
+        CONJUR_API_KEY="${{ inputs.CONJUR_API_KEY }}"
+ 
+        FULL_AUTHN_URL=$CONJUR_APPLIANCE_URL/authn/$CONJUR_ACCOUNT/$CONJUR_AUTHN_LOGIN/authenticate
+        SESSION_TOKEN=$(curl -s -k --request POST \
+          --data "$CONJUR_API_KEY" \
+          "$FULL_AUTHN_URL" | base64 | tr -d '\r\n')
+ 
+        if [ -z "$SESSION_TOKEN" ]; then
+          echo "!!Failed to get session token!!"
+          exit 1
+        fi
+ 
+        echo "::add-mask::$SESSION_TOKEN"
+        echo "session_token=$SESSION_TOKEN" >> $GITHUB_OUTPUT
+
+    # Fetch org-level secrets
+    - name: Retrieve Secret(s) from CONJUR_ORG_VARIABLE_PATH
+      id: retrieve
+      shell: bash
+      env:
+        CONJUR_APPLIANCE_URL: "${{ inputs.CONJUR_APPLIANCE_URL }}"
+        CONJUR_ACCOUNT: "${{ inputs.CONJUR_ACCOUNT }}"
+        CONJUR_ORG_VARIABLE_PATH: "${{ inputs.CONJUR_ORG_VARIABLE_PATH }}"
+      run: |
+        set -e
+        SESSION_TOKEN=${{ steps.conjur_auth.outputs.session_token }}
+ 
+        RAW_RESPONSE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
+          "$CONJUR_APPLIANCE_URL/resources/$CONJUR_ACCOUNT?kind=variable&search=$CONJUR_ORG_VARIABLE_PATH")
+ 
+        if echo "$RAW_RESPONSE" | jq empty >/dev/null 2>&1; then
+          VARS=$(echo "$RAW_RESPONSE" | jq -r '.[].id')
+        else
+          VARS=""
+        fi
+ 
+        if [ -z "$VARS" ]; then VARS="$CONJUR_ORG_VARIABLE_PATH"; fi
+ 
+        echo "{}" > orgsecrets.json
+        for var in $VARS; do
+          clean_var=$(echo "$var" | sed 's/^conjur:variable://')
+          VALUE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
+            "$CONJUR_APPLIANCE_URL/secrets/$CONJUR_ACCOUNT/variable/$clean_var")
+          
+          echo "WIZ_CLIENT_SECRET=$VALUE" >> $GITHUB_OUTPUT          
+        #  echo "::add-mask::$VALUE"
+        done
