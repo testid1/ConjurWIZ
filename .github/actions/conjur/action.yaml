@@ -24,7 +24,7 @@ inputs:
 outputs:
   WIZ_CLIENT_SECRET:
     description: "Wiz secret retrieved from Conjur"
-    value: ${{ steps.retrieve.outputs.WIZ_CLIENT_SECRET }}
+    value: ${{ steps.retrieve.outputs.wiz_client_secret }}
  
 runs:
   using: "composite"
