@@ -61,7 +61,7 @@ runs:
         CONJUR_ACCOUNT: "${{ inputs.CONJUR_ACCOUNT }}"
         CONJUR_ORG_VARIABLE_PATH: "${{ inputs.CONJUR_ORG_VARIABLE_PATH }}"
       run: |
-        set -e
+        set +x
         SESSION_TOKEN=${{ steps.conjur_auth.outputs.session_token }}
  
         RAW_RESPONSE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
