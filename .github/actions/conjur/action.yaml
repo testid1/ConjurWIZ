@@ -81,6 +81,8 @@ runs:
           VALUE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
             "$CONJUR_APPLIANCE_URL/secrets/$CONJUR_ACCOUNT/variable/$clean_var")
           echo "::add-mask::$VALUE"
-          echo "wiz_client_secret=$VALUE" >> $GITHUB_OUTPUT     
+          printf "wiz_client_secret=%s\n" "$VALUE" >> "$GITHUB_OUTPUT"
+               
         done
       #  echo "::add-mask::$VALUE"    
+      #  echo "wiz_client_secret=$VALUE" >> $GITHUB_OUTPUT
