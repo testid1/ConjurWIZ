@@ -80,7 +80,6 @@ runs:
           clean_var=$(echo "$var" | sed 's/^conjur:variable://')
           VALUE=$(curl -s -k -H "Authorization: Token token=\"$SESSION_TOKEN\"" \
             "$CONJUR_APPLIANCE_URL/secrets/$CONJUR_ACCOUNT/variable/$clean_var")
-          echo "::add-mask::$VALUE"
           printf "wiz_client_secret=%s\n" "$VALUE" >> "$GITHUB_OUTPUT"
                
         done
